@@ -6,9 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\GuestMiddleware;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+
 Route::middleware(GuestMiddleware::class)->group(function () {
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
     Route::post('/register-process', [AuthController::class, 'register'])->name('register.process');
@@ -18,7 +16,13 @@ Route::middleware(GuestMiddleware::class)->group(function () {
 });
 
 Route::middleware(AuthMiddleware::class)->group(function () {
+    Route::get('/', function () {
+        return view('welcome');
+    });
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');
