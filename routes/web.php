@@ -22,10 +22,14 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     Route::get('/profile', [UserProfileController::class, 'index'])->name('profile');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+Route::post('/user-profile', [UserProfileController::class, 'update'])
+    ->name('user.profile.update')
+    ->middleware('auth');
 
 Route::get('/verify/{token}', [AuthController::class, 'verifyEmail'])->name('verify.email');

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 use App\Mail\VerifyEmail;
+use App\Models\UserProfiles;
 
 class AuthController extends Controller
 {
@@ -34,6 +35,10 @@ class AuthController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'verify_token'    => $token,
+        ]);
+
+        UserProfiles::create([
+            'user_id' => $user->id,
         ]);
 
         // default role user
