@@ -190,17 +190,41 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="nohp" class="form-control-label">{{ __('Phone') }}</label>
-                                <div class="@error('nohp')border border-danger rounded-3 @enderror">
-                                    <input class="form-control" type="tel" placeholder="62855xxx" id="number"
-                                        name="nohp" value="{{ auth()->user()->details['nohp'] }}" required>
-                                    @error('nohp')
-                                    <p class="text-danger text-xs mt-2">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+    <div class="form-group">
+        <label for="nohp" class="form-control-label">{{ __('Phone') }}</label>
+        <div class="@error('nohp') border border-danger rounded-3 @enderror">
+            <div class="input-group">
+                <input class="form-control" type="tel" placeholder="62855xxx" id="nohp"
+                    name="nohp" value="{{ auth()->user()->details['nohp'] }}" required>
+
+                {{-- Tombol kirim OTP --}}
+                <button type="button" id="btn-send-otp" class="btn btn-outline-primary ms-2">
+                    Kirim OTP
+                </button>
+            </div>
+
+            {{-- Input OTP & tombol verifikasi --}}
+            <div class="mt-3" id="otp-section" style="display:none;">
+                <div class="input-group">
+                    <input type="text" id="otp_code" class="form-control" placeholder="Masukkan kode OTP">
+                    <button type="button" id="btn-verify-otp" class="btn btn-success ms-2">Verifikasi</button>
+                </div>
+                <small id="otp-status" class="text-muted"></small>
+            </div>
+
+            @error('nohp')
+            <p class="text-danger text-xs mt-2">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Jika sudah diverifikasi --}}
+        @if(auth()->user()->details['nohp_verified_at'] ?? false)
+            <span class="badge bg-success mt-2">Nomor sudah terverifikasi</span>
+        @endif
+    </div>
+</div>
+
+
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -262,3 +286,70 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#btn-send-otp').click(function() {
+            var phoneNumber = $('#nohp').val();
+            if (!phoneNumber) {
+                alert('Please enter a phone number.');
+                return;
+            }
+
+            // Kirim permintaan AJAX untuk mengirim OTP
+            $.ajax({
+                url: '/send-otp', // Ganti dengan endpoint yang sesuai di backend Anda
+                method: 'POST',
+                data: {
+                    nohp: phoneNumber,
+                    _token: '{{ csrf_token() }}' // Sertakan token CSRF jika diperlukan
+                },
+                success: function(response) {
+                    alert('OTP has been sent to your phone.');
+                    $('#otp-section').show(); // Tampilkan bagian input OTP
+                },
+                error: function(xhr) {
+                    alert('Failed to send OTP. Please try again.');
+                }
+            });
+        });
+
+        $('#btn-verify-otp').click(function() {
+            var otpCode = $('#otp_code').val();
+            var phoneNumber = $('#nohp').val();
+            if (!otpCode) {
+                alert('Please enter the OTP code.');
+                return;
+            }
+
+            // Kirim permintaan AJAX untuk memverifikasi OTP
+            $.ajax({
+                url: '/verify-otp', // Ganti dengan endpoint yang sesuai di backend Anda
+                method: 'POST',
+                data: {
+                    nohp: phoneNumber,
+                    otp_code: otpCode,
+                    _token: '{{ csrf_token() }}' // Sertakan token CSRF jika diperlukan
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Phone number verified successfully!');
+                        $('#otp-status').text('Phone number verified successfully!').removeClass('text-muted').addClass('text-success');
+                    $('#otp-section').hide();
+                    } else {
+                        alert('Invalid OTP code. Please try again.');
+
+                        return;
+                    }
+                     // Sembunyikan bagian input OTP setelah verifikasi berhasil
+                    // Tambahkan logika tambahan jika perlu, seperti menandai nomor telepon sebagai terverifikasi di UI
+                },
+                error: function(xhr) {
+                    $('#otp-status').text('Invalid OTP code. Please try again.').removeClass('text-muted').addClass('text-danger');
+                }
+            });
+        });
+    });
+</script>
+@endpush

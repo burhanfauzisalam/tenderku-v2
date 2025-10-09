@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class UserProfiles extends Model
 {
     protected $table = "user_profiles";
-    
+
     protected $fillable = [
         'user_id',
         'fullname',
         'nohp',
+        'verified_nohp',
         'address',
         'address_ktp',
         'rekening',

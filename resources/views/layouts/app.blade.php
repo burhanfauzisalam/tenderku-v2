@@ -64,7 +64,6 @@
     </main>
     @endauth
 
-    <!-- @yield('content') -->
 
     <!--   Core JS Files   -->
     <!-- {{ asset('') }} -->
