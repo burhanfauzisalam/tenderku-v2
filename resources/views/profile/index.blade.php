@@ -134,7 +134,7 @@
             <div class="card-body pt-4 p-3">
                 <form action="/user-profile" method="POST" role="form text-left">
                     @csrf
-                    @if($errors->any())
+                    {{-- @if($errors->any())
                     <div class="mt-3  alert alert-primary alert-dismissible fade show" role="alert">
                         <span class="alert-text text-white">
                             {{$errors->first()}}</span>
@@ -142,7 +142,7 @@
                             <i class="fa fa-close" aria-hidden="true"></i>
                         </button>
                     </div>
-                    @endif
+                    @endif --}}
                     @if(session('success'))
                     <div class="m-3  alert alert-success alert-dismissible fade show" id="alert-success" role="alert">
                         <span class="alert-text text-white">
@@ -212,9 +212,13 @@
                 <small id="otp-status" class="text-muted"></small>
             </div>
 
-            @error('nohp')
-            <p class="text-danger text-xs mt-2">{{ $message }}</p>
+           @error('nohp')
+                <small class="text-danger">
+                    {{ str_replace(['The ', 'the ', 'nohp', 'No hp', 'no hp'], '', $message) }}
+                </small>
             @enderror
+
+
         </div>
 
         {{-- Jika sudah diverifikasi --}}
@@ -256,7 +260,9 @@
                                     <input class="form-control" value="{{ auth()->user()->details['rekening'] }}" type="text"
                                         placeholder="123456789" id="rekening" name="rekening" required>
                                     @error('rekening')
-                                    <p class="text-danger text-xs mt-2">{{ $message }}</p>
+                                        <small class="text-danger">
+                                            {{ str_replace(['The ', 'the ', 'rekening', 'Rekening'], '', $message) }}
+                                        </small>
                                     @enderror
                                 </div>
                             </div>
