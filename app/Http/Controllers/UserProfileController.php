@@ -23,6 +23,7 @@ class UserProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
+        // dd($user->details->verified_nohp);
 
         // Validasi input
         $request->validate([
@@ -47,7 +48,9 @@ class UserProfileController extends Controller
             'bank'         => 'nullable|string|max:100',
         ]);
 
-
+        if($user->details->verified_nohp == 0){
+            return redirect()->back()->withErrors(['error' => 'Nomor HP belum terverifikasi. Silakan verifikasi terlebih dahulu.']);
+        }
         try {
             DB::beginTransaction();
 
@@ -56,8 +59,9 @@ class UserProfileController extends Controller
             //     'name' => $request->name,
             // ]);
 
+
             // Update atau buat data detail user (relasi one-to-one)
-            $user->details()->updateOrCreate(
+            $user->details->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'fullname'    => strtoupper($request->fullname),
@@ -68,6 +72,12 @@ class UserProfileController extends Controller
                     'bank'        => strtoupper($request->bank),
                 ]
             );
+
+            User::updateOrCreate(['id' => $user->id],
+            [
+                'status' => 2,
+                'name' => $request->name,
+            ]);
 
             DB::commit();
 

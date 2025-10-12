@@ -293,24 +293,45 @@
         $('#btn-send-otp').click(function() {
             var phoneNumber = $('#nohp').val();
             if (!phoneNumber) {
-                alert('Please enter a phone number.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: 'Please enter a phone number.'
+                });
                 return;
             }
 
-            // Kirim permintaan AJAX untuk mengirim OTP
             $.ajax({
-                url: '/send-otp', // Ganti dengan endpoint yang sesuai di backend Anda
+                url: '/send-otp',
                 method: 'POST',
                 data: {
                     nohp: phoneNumber,
-                    _token: '{{ csrf_token() }}' // Sertakan token CSRF jika diperlukan
+                    _token: '{{ csrf_token() }}'
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Sending OTP...',
+                        text: 'Please wait a moment.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                 },
                 success: function(response) {
-                    alert('OTP has been sent to your phone.');
-                    $('#otp-section').show(); // Tampilkan bagian input OTP
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Sent!',
+                        text: 'OTP has been sent to your phone.'
+                    });
+                    $('#otp-section').show();
                 },
                 error: function(xhr) {
-                    alert('Failed to send OTP. Please try again.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Failed to send OTP. Please try again.'
+                    });
                 }
             });
         });
@@ -318,38 +339,68 @@
         $('#btn-verify-otp').click(function() {
             var otpCode = $('#otp_code').val();
             var phoneNumber = $('#nohp').val();
+
             if (!otpCode) {
-                alert('Please enter the OTP code.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: 'Please enter the OTP code.'
+                });
                 return;
             }
 
-            // Kirim permintaan AJAX untuk memverifikasi OTP
             $.ajax({
-                url: '/verify-otp', // Ganti dengan endpoint yang sesuai di backend Anda
+                url: '/verify-otp',
                 method: 'POST',
                 data: {
                     nohp: phoneNumber,
                     otp_code: otpCode,
-                    _token: '{{ csrf_token() }}' // Sertakan token CSRF jika diperlukan
+                    _token: '{{ csrf_token() }}'
+                },
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Verifying OTP...',
+                        text: 'Please wait.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Phone number verified successfully!');
-                        $('#otp-status').text('Phone number verified successfully!').removeClass('text-muted').addClass('text-success');
-                    $('#otp-section').hide();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Verified!',
+                            text: 'Phone number verified successfully!'
+                        });
+                        $('#otp-status')
+                            .text('Phone number verified successfully!')
+                            .removeClass('text-muted')
+                            .addClass('text-success');
+                        $('#otp-section').hide();
                     } else {
-                        alert('Invalid OTP code. Please try again.');
-
-                        return;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid OTP',
+                            text: 'Invalid OTP code. Please try again.'
+                        });
                     }
-                     // Sembunyikan bagian input OTP setelah verifikasi berhasil
-                    // Tambahkan logika tambahan jika perlu, seperti menandai nomor telepon sebagai terverifikasi di UI
                 },
                 error: function(xhr) {
-                    $('#otp-status').text('Invalid OTP code. Please try again.').removeClass('text-muted').addClass('text-danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Verification Failed',
+                        text: 'Invalid OTP code. Please try again.'
+                    });
+                    $('#otp-status')
+                        .text('Invalid OTP code. Please try again.')
+                        .removeClass('text-muted')
+                        .addClass('text-danger');
                 }
             });
         });
+
     });
 </script>
 @endpush

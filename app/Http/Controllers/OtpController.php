@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -23,6 +24,13 @@ class OtpController extends Controller
         $otp = rand(100000, 999999); // 6 digit OTP
         $expiresAt = Carbon::now()->addMinutes(5); // OTP berlaku 5 menit
 
+        $check = UserOtp::whereHas('user', function ($query) use ($nohp) {
+            $query->where('nohp', $nohp)->where('is_used', 0);
+        })->first();
+        // dd($check);
+        if ($check) {
+            $check->delete();
+        }
         // Simpan ke database
         UserOtp::create([
             'user_id' => Auth::id(),
