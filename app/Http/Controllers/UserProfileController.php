@@ -48,7 +48,7 @@ class UserProfileController extends Controller
             'bank'         => 'nullable|string|max:100',
         ]);
 
-        if($user->details->verified_nohp == 0){
+        if($user->details->verified_nohp == 0 || $user->details->nohp != $request->nohp){
             return redirect()->back()->withErrors(['error' => 'Nomor HP belum terverifikasi. Silakan verifikasi terlebih dahulu.']);
         }
         try {
