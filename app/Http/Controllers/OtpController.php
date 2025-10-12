@@ -102,9 +102,12 @@ class OtpController extends Controller
         $otpRecord->update(['is_used' => 1]);
 
         // Tandai user sudah verifikasi nomor HP
-        Auth::user()->details()->updateOrCreate(
+        Auth::user()->details->updateOrCreate(
             ['user_id' => Auth::id()],
-            ['verified_nohp' => 1]
+            [
+                'verified_nohp' => 1,
+                'nohp' => $nohp
+            ]
         );
 
         return response()->json([

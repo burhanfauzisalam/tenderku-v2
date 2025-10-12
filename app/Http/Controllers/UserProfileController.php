@@ -15,7 +15,7 @@ class UserProfileController extends Controller
         if (!Auth::check()) {
             return redirect()->route('login.form'); // redirect ke login
         }
-        $user = Auth::user()->load('details');
+        $user = User::with('details')->find(Auth::id());
         // dd($user->details['fullname']);
         return view('profile.index', compact('user'));
     }
@@ -51,6 +51,14 @@ class UserProfileController extends Controller
         if($user->details->verified_nohp == 0 || $user->details->nohp != $request->nohp){
             return redirect()->back()->withErrors(['error' => 'Nomor HP belum terverifikasi. Silakan verifikasi terlebih dahulu.']);
         }
+        // if( $user->details->nohp != $request->nohp ){
+        //     // dd('masuk sini');
+        //     $user->details->update([
+        //         'verified_nohp' => 0,
+        //         'nohp' => $request->nohp,
+        //     ]);
+        //     return redirect()->back()->withErrors(['error' => 'Nomor HP belum terverifikasi. Silakan verifikasi terlebih dahulu.']);
+        // }
         try {
             DB::beginTransaction();
 
