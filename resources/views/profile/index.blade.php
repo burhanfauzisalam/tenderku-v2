@@ -333,10 +333,23 @@
                     $('#otp-section').show();
                 },
                 error: function(xhr) {
+                    let errorMessage = 'Failed to send OTP. Please try again.';
+
+                    // Jika controller mengembalikan response JSON
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    // Jika error berasal dari validasi Laravel
+                    else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        const errors = xhr.responseJSON.errors;
+                        // Ambil pesan pertama dari objek errors
+                        errorMessage = Object.values(errors)[0][0];
+                    }
+
                     Swal.fire({
                         icon: 'error',
                         title: 'Failed!',
-                        text: 'Failed to send OTP. Please try again.'
+                        text: errorMessage.replace('nohp', 'phone number')
                     });
                 }
             });
@@ -389,7 +402,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Invalid OTP',
-                            text: 'Invalid OTP code. Please try again.'
+                            text: response.message
                         });
                     }
                 },

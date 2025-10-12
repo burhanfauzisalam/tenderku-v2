@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use App\Models\UserOtp;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class OtpController extends Controller
 {
@@ -17,7 +18,13 @@ class OtpController extends Controller
     public function sendOtp(Request $request)
     {
         $request->validate([
-            'nohp' => 'required|string|max:20',
+            'nohp'         => [
+                'nullable',
+                'string',
+                'max:20',
+                // tidak boleh sama dengan user lain
+                Rule::unique('user_profiles', 'nohp')->ignore(Auth::id(), 'user_id'),
+            ],
         ]);
 
         $nohp = preg_replace('/\D/', '', $request->nohp); // hanya angka
