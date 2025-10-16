@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\OtpController;
+use App\Http\Controllers\TokenController;
 
 Route::middleware(GuestMiddleware::class)->group(function () {
     Route::get('/register', [AuthController::class, 'registerForm'])->name('register');
@@ -24,6 +25,8 @@ Route::middleware(AuthMiddleware::class)->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [UserProfileController::class, 'index'])->name('profile');
+
+    Route::resource('tokens', TokenController::class);
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
